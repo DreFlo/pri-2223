@@ -1,0 +1,181 @@
+{
+	"add-field-type": [
+        {
+            "name":"Text",
+            "class":"solr.TextField",
+            "indexAnalyzer":{
+                "tokenizer":{
+                    "class":"solr.ClassicTokenizerFactory"
+                },
+                "filters":[
+                    {
+                        "class" : "solr.ASCIIFoldingFilterFactory", 
+                        "preserveOriginal" : true
+                    },
+                    {
+                        "class" : "solr.LowerCaseFilterFactory"
+                    },
+                    {
+                        "class" : "solr.EnglishMinimalStemFilterFactory"
+                    },
+                    {
+                        "class" : "solr.ClassicFilterFactory"
+                    },
+                    {
+                        "class" : "solr.PorterStemFilterFactory"
+                    },
+                    {
+                        "class" : "solr.SynonymGraphFilterFactory",
+                        "synonyms" : "synonyms.txt",
+                        "expand" : true
+                    },
+                    {
+                        "class" : "solr.BeiderMorseFilterFactory"
+                    }
+                ]
+            },
+            "queryAnalyzer":{
+                "tokenizer":{
+                    "class":"solr.ClassicTokenizerFactory"
+                },
+                "filters":[
+                    {
+                        "class" : "solr.ASCIIFoldingFilterFactory", 
+                        "preserveOriginal" : true
+                    },
+                    {
+                        "class" : "solr.LowerCaseFilterFactory"
+                    },
+                    {
+                        "class" : "solr.EnglishMinimalStemFilterFactory"
+                    },
+                    {
+                        "class" : "solr.ClassicFilterFactory"
+                    },
+                    {
+                        "class" : "solr.PorterStemFilterFactory"
+                    },
+                    {
+                        "class" : "solr.SynonymGraphFilterFactory",
+                        "synonyms" : "synonyms.txt",
+                        "expand" : true
+                    },
+                    {
+                        "class" : "solr.BeiderMorseFilterFactory"
+                    }
+                ]
+            }
+        },
+        {
+            "name" : "Integer",
+            "class" : "solr.IntPointField",
+            "docValues" : true
+        },
+        {
+            "name" : "Float",
+            "class" : "solr.FloatPointField",
+            "docValues" : true
+        },
+        {
+            "name" : "String",
+            "class" : "solr.StrField",
+            "indexed" : false,
+            "docValues" : false
+        },
+        {
+            "name" : "Boolean",
+            "class" : "solr.BoolField"
+        }
+    ],
+    "add-field": [
+        {
+            "name": "title",
+            "type": "Text",
+            "indexed": true
+        },
+        {
+            "name" : "description",
+            "type" : "Text",
+            "indexed" : true
+        },
+        {
+            "name" : "type",
+            "type" :  "String"
+        },
+        {
+            "name" : "release_year",
+            "type" :  "Integer"
+        },
+        {
+            "name" : "age_certification",
+            "type" :  "String"
+        },
+        {
+            "name" : "runtime",
+            "type" :  "Integer"
+        },
+        {
+            "name" : "seasons",
+            "type" :  "Integer"
+        },
+        {
+            "name" : "genres",
+            "type" :  "text_en",
+            "multiValued" : true
+        },
+        {
+            "name" : "imdb_id",
+            "type" : "String",
+            "indexed" : true
+        },
+        {
+            "name" : "imdb_score",
+            "type" : "Float"
+        },
+        {
+            "name" : "imdb_votes",
+            "type" : "Integer"
+        },
+        {
+            "name" : "tmdb_votes",
+            "type" : "Integer"
+        },
+        {
+            "name" : "tmdb_score",
+            "type" : "Float"
+        },
+        {
+            "name" : "tmdb_popularity",
+            "type" : "Float"
+        },
+        {
+            "name" : "person_id",
+            "type" :  "Integer",
+            "indexed" : true,
+            "multiValued" : false
+        },
+        {
+            "name" : "name",
+            "type" :  "Text",
+            "indexed" : true,
+            "multiValued" : false
+        },
+        {
+            "name" : "character",
+            "type" :  "Text",
+            "indexed" : true,
+            "multiValued" : false
+        },
+        {
+            "name" : "role",
+            "type" :  "String",
+            "indexed" : true,
+            "multiValued" : false
+        },
+        {
+            "name" : "content_type",
+            "type" :  "String",
+            "indexed" : true
+        }
+    ]
+}

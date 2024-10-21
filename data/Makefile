@@ -1,0 +1,51 @@
+.PHONY: titles.csv credits.csv temp_titles.csv temp_credits.csv ids_no_description.csv processed_credits.csv temp_scores.csv processed_titles.csv clean_temp
+# genres.csv scores.csv
+
+output: credits.csv titles.csv processed_credits.csv processed_titles.csv scores.csv genres.csv clean_temp
+
+# Join all credits data into one file
+credits.csv:
+	csvstack credits_netflix.csv credits_hbo.csv credits_prime.csv credits_disney.csv > credits.csv
+
+# Join all titles data into one file
+titles.csv:
+	csvstack titles_netflix.csv titles_hbo.csv titles_prime.csv titles_disney.csv > titles.csv
+
+# Remove duplicated entry from titles
+# Remove entries with no description
+# Treat descriptions with newlines because awk does not handle them well
+# Replace null values in age certification with 'Unrated' and 0 in runtime with null
+temp_titles.csv: titles.csv
+	csvgrep -c id -r "^(?!ts19384).*" titles.csv | csvgrep -c description -r ".+" | awk -F'"' 'NF&&NF%2==0{ORS=ORS==RS?" ":RS}1' | csvquote | awk -F ',' -v OFS=',' '{if ($$6=="") {$$6="Unrated"}; if ($$7=="0") {$$7=""}}1' | csvquote -u > temp_titles.csv
+
+# Remove credits from duplicated entry removed from titles
+temp_credits.csv: credits.csv
+	sed '11217,11218d' credits.csv > temp_credits.csv
+
+# Select ids from titles with no description
+ids_no_description.csv:
+	csvgrep -c description -r "^$$" titles.csv | csvcut -c id > ids_no_description.csv
+
+# Remove credits from titles that were eliminated because of no description
+processed_credits.csv:	ids_no_description.csv temp_credits.csv
+	awk -F ',' -v OFS=',' 'NR==FNR{if($$0!="id"){a[$$0]};next} !($$2 in a) {print}' ids_no_description.csv temp_credits.csv > processed_credits.csv
+
+# Select columns regarding scores from temp_titles
+temp_scores.csv: temp_titles.csv
+	csvcut -c id,imdb_id,imdb_score,imdb_votes,tmdb_score,tmdb_popularity temp_titles.csv > temp_scores.csv
+
+# Update scores with values from IMDb and TMDB
+scores.csv: temp_scores.csv
+	pip install requests; python update_scores.py temp_scores.csv
+
+# Create genres table with a row for each title and column for each genre
+genres.csv: temp_titles.csv
+	python create_genres_csv.py temp_titles.csv
+
+# Select columns from temp_titles
+processed_titles.csv: temp_titles.csv
+	csvcut -C genres,imdb_id,imdb_score,imdb_votes,tmdb_popularity,tmdb_score temp_titles.csv > processed_titles.csv
+
+# Remove temporary files
+clean_temp:
+	rm temp_titles.csv temp_credits.csv ids_no_description.csv temp_scores.csv
